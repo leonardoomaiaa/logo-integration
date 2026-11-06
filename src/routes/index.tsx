@@ -19,7 +19,6 @@ export default function Index() {
   const [metragem, setMetragem] = useState('');
   const [margemLucro, setMargemLucro] = useState('');
 
-  // Estado do Modal de Resultado
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [resultado, setResultado] = useState({
     modelo: '',
@@ -67,11 +66,9 @@ export default function Index() {
       return;
     }
 
-    // FÓRMULA: (VALOR DO KG / RENDIMENTO) * METRAGEM DA PEÇA = VALOR BASE
     const valorMetro = numValorKg / numRendimento;
     const valorBase = valorMetro * numMetragem;
 
-    // Acréscimos
     let totalAcrescimos = 0;
     if (acrescimo === 'SIM') {
       acrescimosList.forEach(item => {
@@ -79,7 +76,6 @@ export default function Index() {
       });
     }
 
-    // VALOR FINAL = VALOR BASE + INSUMO + ACRÉSCIMO + MARGEM DE LUCRO
     const valorFinal = valorBase + numInsumo + totalAcrescimos + numMargemLucro;
 
     setResultado({
@@ -98,7 +94,6 @@ export default function Index() {
 
   return (
     <div className="bg-[#0a0a0a] text-white min-h-screen flex flex-col font-sans">
-      {/* HEADER */}
       <header className="bg-[#141414] border-b border-zinc-800 py-4 px-6 shadow-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -118,7 +113,6 @@ export default function Index() {
         </div>
       </header>
 
-      {/* MAIN CONTAINER */}
       <main className="flex-grow max-w-4xl w-full mx-auto p-4 sm:p-6">
         <div className="bg-[#1f1f1f] border border-zinc-800 rounded-xl shadow-2xl p-6 sm:p-8">
           <div className="mb-6 border-b border-zinc-800 pb-4">
@@ -129,8 +123,6 @@ export default function Index() {
           </div>
 
           <div className="space-y-6">
-            
-            {/* 1. MALHA, COR E MODELO ALINHADOS NO TOPO */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Malha</label>
@@ -164,7 +156,6 @@ export default function Index() {
               </div>
             </div>
 
-            {/* 2. SEQUÊNCIA LINEAR: Valor do KG, Rendimento, Metragem, Insumo */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Valor do KG (R$)</label>
@@ -212,7 +203,6 @@ export default function Index() {
               </div>
             </div>
 
-            {/* 3. LOGO ABAIXO: ACRÉSCIMO */}
             <div className="bg-[#0a0a0a]/50 border border-zinc-800 rounded-xl p-4">
               <label className="block text-xs font-semibold uppercase text-zinc-400 mb-2">Acréscimo</label>
               <select
@@ -268,7 +258,6 @@ export default function Index() {
               )}
             </div>
 
-            {/* 4. LOGO ABAIXO: MARGEM DE LUCRO */}
             <div>
               <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Margem de Lucro (R$)</label>
               <input
@@ -281,7 +270,6 @@ export default function Index() {
               />
             </div>
 
-            {/* BOTÃO DE CALCULAR */}
             <div className="pt-4">
               <button
                 type="button"
@@ -295,7 +283,6 @@ export default function Index() {
         </div>
       </main>
 
-      {/* MODAL DE RESULTADO */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-[#1f1f1f] border border-zinc-700 w-full max-w-md rounded-2xl p-6 shadow-2xl">
@@ -314,4 +301,43 @@ export default function Index() {
                 <div className="flex justify-between"><span className="text-zinc-400">Malha / Cor:</span> <span className="font-semibold text-white">{resultado.malhaCor}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-400">Valor do Metro:</span> <span className="font-semibold text-white">R$ {resultado.valorMetro.toFixed(2)}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-400">Valor Base (Malha):</span> <span className="font-semibold text-white">R$ {resultado.valorBase.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-400">Insumo:</span> <span className="font-semibold text-
+                <div className="flex justify-between"><span className="text-zinc-400">Insumo:</span> <span className="font-semibold text-white">R$ {resultado.insumoVal.toFixed(2)}</span></div>
+                {resultado.totalAcrescimos > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-400">Total Acréscimos:</span>
+                    <span className="font-semibold text-white">R$ {resultado.totalAcrescimos.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-zinc-800 pt-2"><span className="text-zinc-400">Margem de Lucro:</span> <span className="font-semibold text-white">R$ {resultado.margemVal.toFixed(2)}</span></div>
+              </div>
+
+              <div className="bg-red-600/10 border border-red-600/30 p-4 rounded-xl text-center">
+                <span className="text-xs uppercase font-bold text-red-600 tracking-wider block mb-1">Valor Final da Peça</span>
+                <span className="text-3xl font-black text-white">R$ {resultado.valorFinal.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2.5 rounded-xl transition cursor-pointer"
+              >
+                Fechar
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Printer className="w-4 h-4" /> Imprimir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <footer className="text-center py-6 text-xs text-zinc-400 border-t border-zinc-900 mt-auto">
+        PRECIFICAÇÃO.VESTUÁRIO &copy; 2026 - Todos os direitos reservados.
+      </footer>
+    </div>
+  );
+}
