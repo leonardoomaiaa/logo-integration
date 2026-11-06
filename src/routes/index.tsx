@@ -1,4 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
+import logo from '@/assets/aleti-logo.png.asset.json';
+
+export const Route = createFileRoute('/')({
+  head: () => ({ meta: [
+    { title: 'Aleti — Precificação Vestuário' },
+    { name: 'description', content: 'Calcule o custo e o preço final das suas peças de vestuário.' },
+    { property: 'og:title', content: 'Aleti — Precificação Vestuário' },
+    { property: 'og:description', content: 'Calcule o custo e o preço final das suas peças de vestuário.' },
+  ] }),
+  component: Index,
+});
 import { Calculator, Plus, Trash2, X, Printer, Tag } from 'lucide-react';
 
 interface AcrescimoItem {
@@ -7,7 +19,7 @@ interface AcrescimoItem {
   valor: number;
 }
 
-export default function Index() {
+function Index() {
   const [malha, setMalha] = useState('');
   const [cor, setCor] = useState('');
   const [modelo, setModelo] = useState('');
@@ -104,10 +116,7 @@ export default function Index() {
           <div className="flex items-center space-x-3">
             {/* Logo Aleti */}
             <div className="w-10 h-10 rounded-lg bg-black border border-zinc-700 flex items-center justify-center p-1 overflow-hidden shadow-inner">
-              <svg viewBox="0 0 500 500" className="w-full h-full object-contain" xmlns="http://www.w3.org/2000/svg">
-                <polygon points="250,30 450,450 50,450" fill="none" stroke="#dc2626" strokeWidth="15"/>
-                <polygon points="250,470 50,70 450,70" fill="none" stroke="#ffffff" strokeWidth="15"/>
-              </svg>
+              <img src={logo.url} alt="Aleti" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-xl font-black tracking-wider text-white">
               PRECIFICAÇÃO<span className="text-red-600">.</span>VESTUÁRIO
