@@ -30,3 +30,4 @@ use the editor.
 <!-- LOVABLE:END -->
 
 - Register every content page with an exported TanStack `createFileRoute` Route so generated routing can mount it; a default React export alone does not register a page.
+- Keep homepage regression tests for both route matching and its registered screen so losing the page registration is caught before release.
