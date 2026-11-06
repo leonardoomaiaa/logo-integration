@@ -341,4 +341,27 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2.5 rounded-xl transition cursor-pointer"
+              >
+                Fechar
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <Printer className="w-4 h-4" /> Imprimir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <footer className="text-center py-6 text-xs text-zinc-400 border-t border-zinc-900 mt-auto">
+        PRECIFICAÇÃO.VESTUÁRIO &copy; 2026 - Todos os direitos reservados.
+      </footer>
+    </div>
+  );
+}
