@@ -1,16 +1,4 @@
-import { useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
-import logo from '@/assets/aleti-logo.png.asset.json';
-
-export const Route = createFileRoute('/')({
-  head: () => ({ meta: [
-    { title: 'Aleti — Precificação Vestuário' },
-    { name: 'description', content: 'Calcule o custo e o preço final das suas peças de vestuário.' },
-    { property: 'og:title', content: 'Aleti — Precificação Vestuário' },
-    { property: 'og:description', content: 'Calcule o custo e o preço final das suas peças de vestuário.' },
-  ] }),
-  component: Index,
-});
+import React, { useState } from 'react';
 import { Calculator, Plus, Trash2, X, Printer, Tag } from 'lucide-react';
 
 interface AcrescimoItem {
@@ -19,7 +7,7 @@ interface AcrescimoItem {
   valor: number;
 }
 
-function Index() {
+export default function Index() {
   const [malha, setMalha] = useState('');
   const [cor, setCor] = useState('');
   const [modelo, setModelo] = useState('');
@@ -116,7 +104,10 @@ function Index() {
           <div className="flex items-center space-x-3">
             {/* Logo Aleti */}
             <div className="w-10 h-10 rounded-lg bg-black border border-zinc-700 flex items-center justify-center p-1 overflow-hidden shadow-inner">
-              <img src={logo.url} alt="Aleti" className="w-full h-full object-contain" />
+              <svg viewBox="0 0 500 500" className="w-full h-full object-contain" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="250,30 450,450 50,450" fill="none" stroke="#dc2626" strokeWidth="15"/>
+                <polygon points="250,470 50,70 450,70" fill="none" stroke="#ffffff" strokeWidth="15"/>
+              </svg>
             </div>
             <h1 className="text-xl font-black tracking-wider text-white">
               PRECIFICAÇÃO<span className="text-red-600">.</span>VESTUÁRIO
@@ -139,8 +130,9 @@ function Index() {
           </div>
 
           <div className="space-y-6">
-            {/* DADOS BÁSICOS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            {/* MALHA, COR E MODELO ALINHADOS OS TRÊS JUNTOS NO TOPO */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Malha</label>
                 <input
@@ -161,9 +153,6 @@ function Index() {
                   className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Modelo</label>
                 <input
@@ -174,6 +163,10 @@ function Index() {
                   className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
                 />
               </div>
+            </div>
+
+            {/* INSUMO */}
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Insumo</label>
                 <input
