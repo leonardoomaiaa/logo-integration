@@ -1,5 +1,20 @@
 import React, { useState } from 'react';
+import { createFileRoute } from '@tanstack/react-router';
 import { Calculator, Plus, Trash2, X, Printer, Tag } from 'lucide-react';
+
+export const Route = createFileRoute('/')({
+  head: () => ({
+    meta: [
+      { title: 'Precificação.Vestuário — Ficha Técnica e Custos' },
+      { name: 'description', content: 'Calcule o valor de peças de vestuário a partir da malha, rendimento, acréscimos e lucro.' },
+      { property: 'og:title', content: 'Precificação.Vestuário — Ficha Técnica e Custos' },
+      { property: 'og:description', content: 'Calcule os custos e o valor final de suas peças de vestuário.' },
+      { property: 'og:type', content: 'website' },
+      { name: 'twitter:card', content: 'summary_large_image' },
+    ],
+  }),
+  component: Index,
+});
 
 interface AcrescimoItem {
   id: number;
