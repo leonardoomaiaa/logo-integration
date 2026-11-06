@@ -1,20 +1,5 @@
 import React, { useState } from 'react';
-import { createFileRoute } from '@tanstack/react-router';
 import { Calculator, Plus, Trash2, X, Printer, Tag } from 'lucide-react';
-
-export const Route = createFileRoute('/')({
-  head: () => ({
-    meta: [
-      { title: 'Precificação.Vestuário — Ficha Técnica e Custos' },
-      { name: 'description', content: 'Calcule o valor de peças de vestuário a partir da malha, rendimento, acréscimos e lucro.' },
-      { property: 'og:title', content: 'Precificação.Vestuário — Ficha Técnica e Custos' },
-      { property: 'og:description', content: 'Calcule os custos e o valor final de suas peças de vestuário.' },
-      { property: 'og:type', content: 'website' },
-      { name: 'twitter:card', content: 'summary_large_image' },
-    ],
-  }),
-  component: Index,
-});
 
 interface AcrescimoItem {
   id: number;
@@ -41,8 +26,10 @@ export default function Index() {
     modelo: '',
     malhaCor: '',
     valorMetro: 0,
-    valorBruto: 0,
+    valorBase: 0,
+    insumoVal: 0,
     totalAcrescimos: 0,
+    margemVal: 0,
     valorFinal: 0,
   });
 
@@ -70,23 +57,20 @@ export default function Index() {
   };
 
   const calcularPreco = () => {
-    const numTamanho = parseFloat(tamanho) || 0;
     const numValorKg = parseFloat(valorKg) || 0;
     const numRendimento = parseFloat(rendimento) || 0;
     const numMetragem = parseFloat(metragem) || 0;
+    const numInsumo = parseFloat(insumo) || 0;
     const numMargemLucro = parseFloat(margemLucro) || 0;
 
-    if (!malha || !cor || !modelo || numValorKg === 0 || numRendimento === 0 || numTamanho === 0) {
+    if (!malha || !cor || !modelo || numValorKg === 0 || numRendimento === 0 || numMetragem === 0) {
       alert('Por favor, preencha todos os campos obrigatórios corretamente.');
       return;
     }
 
-    // Fórmulas: VALOR DO KG / RENDIMENTO = VALOR DO METRO
+    // FÓRMULA: (VALOR DO KG / RENDIMENTO) * METRAGEM DA PEÇA = VALOR BASE
     const valorMetro = numValorKg / numRendimento;
-
-    // VALOR DO METRO X TAMANHO DA PEÇA = VALOR BRUTO
-    const fatorCalculo = numMetragem > 0 ? numMetragem : numTamanho;
-    const valorBruto = valorMetro * fatorCalculo;
+    const valorBase = valorMetro * numMetragem;
 
     // Acréscimos
     let totalAcrescimos = 0;
@@ -96,15 +80,17 @@ export default function Index() {
       });
     }
 
-    // VALOR BRUTO + MARGEM DE LUCRO (+ Acréscimos) = VALOR DA PEÇA
-    const valorFinal = valorBruto + totalAcrescimos + numMargemLucro;
+    // VALOR FINAL = VALOR BASE + INSUMO + ACRÉSCIMO + MARGEM DE LUCRO
+    const valorFinal = valorBase + numInsumo + totalAcrescimos + numMargemLucro;
 
     setResultado({
       modelo,
       malhaCor: `${malha} (${cor})`,
       valorMetro,
-      valorBruto,
+      valorBase,
+      insumoVal: numInsumo,
       totalAcrescimos,
+      margemVal: numMargemLucro,
       valorFinal,
     });
 
@@ -117,7 +103,6 @@ export default function Index() {
       <header className="bg-[#141414] border-b border-zinc-800 py-4 px-6 shadow-md sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            {/* Logo Aleti */}
             <div className="w-10 h-10 rounded-lg bg-black border border-zinc-700 flex items-center justify-center p-1 overflow-hidden shadow-inner">
               <svg viewBox="0 0 500 500" className="w-full h-full object-contain" xmlns="http://www.w3.org/2000/svg">
                 <polygon points="250,30 450,450 50,450" fill="none" stroke="#dc2626" strokeWidth="15"/>
@@ -146,7 +131,7 @@ export default function Index() {
 
           <div className="space-y-6">
             
-            {/* MALHA, COR E MODELO ALINHADOS OS TRÊS JUNTOS NO TOPO */}
+            {/* 1. MALHA, COR E MODELO ALINHADOS NO TOPO */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
                 <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Malha</label>
@@ -180,23 +165,57 @@ export default function Index() {
               </div>
             </div>
 
-            {/* INSUMO */}
-            <div className="grid grid-cols-1 gap-4">
+            {/* 2. SEQUÊNCIA LINEAR SOLICITADA: Valor do KG, Rendimento, Metragem, Insumo */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
               <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Insumo</label>
+                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Valor do KG (R$)</label>
                 <input
-                  type="text"
+                  type="number"
+                  step="0.01"
+                  value={valorKg}
+                  onChange={e => setValorKg(e.target.value)}
+                  placeholder="Ex: 35.00"
+                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Rendimento (M)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={rendimento}
+                  onChange={e => setRendimento(e.target.value)}
+                  placeholder="Ex: 2.5"
+                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Metragem da Peça (M)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={metragem}
+                  onChange={e => setMetragem(e.target.value)}
+                  placeholder="Ex: 1.80"
+                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Insumo (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
                   value={insumo}
                   onChange={e => setInsumo(e.target.value)}
-                  placeholder="Ex: Linha, Etiqueta, Viés"
+                  placeholder="Ex: 5.00"
                   className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
                 />
               </div>
             </div>
 
-            {/* ACRÉSCIMO SECTION */}
+            {/* 3. LOGO ABAIXO: ACRÉSCIMO */}
             <div className="bg-[#0a0a0a]/50 border border-zinc-800 rounded-xl p-4">
-              <label className="block text-xs font-semibold uppercase text-zinc-400 mb-2">Acréscimo?</label>
+              <label className="block text-xs font-semibold uppercase text-zinc-400 mb-2">Acréscimo</label>
               <select
                 value={acrescimo}
                 onChange={e => handleAcrescimoChange(e.target.value)}
@@ -250,66 +269,17 @@ export default function Index() {
               )}
             </div>
 
-            {/* PARÂMETROS DE CÁLCULO */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Tamanho da Peça</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={tamanho}
-                  onChange={e => setTamanho(e.target.value)}
-                  placeholder="Ex: 1.80"
-                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Valor do KG (R$)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={valorKg}
-                  onChange={e => setValorKg(e.target.value)}
-                  placeholder="Ex: 35.00"
-                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Rendimento (m/kg)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={rendimento}
-                  onChange={e => setRendimento(e.target.value)}
-                  placeholder="Ex: 2.5"
-                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Metragem da Peça</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={metragem}
-                  onChange={e => setMetragem(e.target.value)}
-                  placeholder="Ex: 1.80"
-                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Margem de Lucro (R$)</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={margemLucro}
-                  onChange={e => setMargemLucro(e.target.value)}
-                  placeholder="Ex: 15.00"
-                  className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
-                />
-              </div>
+            {/* 4. LOGO ABAIXO: MARGEM DE LUCRO */}
+            <div>
+              <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Margem de Lucro (R$)</label>
+              <input
+                type="number"
+                step="0.01"
+                value={margemLucro}
+                onChange={e => setMargemLucro(e.target.value)}
+                placeholder="Ex: 15.00"
+                className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
+              />
             </div>
 
             {/* BOTÃO DE CALCULAR */}
@@ -344,13 +314,15 @@ export default function Index() {
                 <div className="flex justify-between"><span className="text-zinc-400">Modelo:</span> <span className="font-semibold text-white">{resultado.modelo}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-400">Malha / Cor:</span> <span className="font-semibold text-white">{resultado.malhaCor}</span></div>
                 <div className="flex justify-between"><span className="text-zinc-400">Valor do Metro:</span> <span className="font-semibold text-white">R$ {resultado.valorMetro.toFixed(2)}</span></div>
-                <div className="flex justify-between"><span className="text-zinc-400">Valor Bruto:</span> <span className="font-semibold text-white">R$ {resultado.valorBruto.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-400">Valor Base (Malha):</span> <span className="font-semibold text-white">R$ {resultado.valorBase.toFixed(2)}</span></div>
+                <div className="flex justify-between"><span className="text-zinc-400">Insumo:</span> <span className="font-semibold text-white">R$ {resultado.insumoVal.toFixed(2)}</span></div>
                 {resultado.totalAcrescimos > 0 && (
-                  <div className="flex justify-between border-t border-zinc-800 pt-2">
+                  <div className="flex justify-between">
                     <span className="text-zinc-400">Total Acréscimos:</span>
                     <span className="font-semibold text-white">R$ {resultado.totalAcrescimos.toFixed(2)}</span>
                   </div>
                 )}
+                <div className="flex justify-between border-t border-zinc-800 pt-2"><span className="text-zinc-400">Margem de Lucro:</span> <span className="font-semibold text-white">R$ {resultado.margemVal.toFixed(2)}</span></div>
               </div>
 
               <div className="bg-red-600/10 border border-red-600/30 p-4 rounded-xl text-center">
