@@ -42,6 +42,7 @@ export default function Index() {
     valorBase: 0,
     insumoVal: 0,
     totalAcrescimos: 0,
+    margemPercentual: 0,
     margemVal: 0,
     valorFinal: 0,
   });
@@ -74,7 +75,7 @@ export default function Index() {
     const numRendimento = parseFloat(rendimento) || 0;
     const numMetragem = parseFloat(metragem) || 0;
     const numInsumo = parseFloat(insumo) || 0;
-    const numMargemLucro = parseFloat(margemLucro) || 0;
+    const numMargemPercentual = parseFloat(margemLucro) || 0;
 
     if (!malha || !cor || !modelo || numValorKg === 0 || numRendimento === 0 || numMetragem === 0) {
       alert('Por favor, preencha todos os campos obrigatórios corretamente.');
@@ -91,7 +92,14 @@ export default function Index() {
       });
     }
 
-    const valorFinal = valorBase + numInsumo + totalAcrescimos + numMargemLucro;
+    // Subtotal antes do lucro (Valor Base + Insumo + Acréscimos)
+    const subtotalCustos = valorBase + numInsumo + totalAcrescimos;
+
+    // Cálculo da Margem de Lucro em Dinheiro baseada na porcentagem informada
+    const margemVal = subtotalCustos * (numMargemPercentual / 100);
+
+    // Valor Final
+    const valorFinal = subtotalCustos + margemVal;
 
     setResultado({
       modelo,
@@ -100,7 +108,8 @@ export default function Index() {
       valorBase,
       insumoVal: numInsumo,
       totalAcrescimos,
-      margemVal: numMargemLucro,
+      margemPercentual: numMargemPercentual,
+      margemVal,
       valorFinal,
     });
 
@@ -274,13 +283,13 @@ export default function Index() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Margem de Lucro (R$)</label>
+              <label className="block text-xs font-semibold uppercase text-zinc-400 mb-1">Margem de Lucro (%)</label>
               <input
                 type="number"
                 step="0.01"
                 value={margemLucro}
                 onChange={e => setMargemLucro(e.target.value)}
-                placeholder="Ex: 15.00"
+                placeholder="Ex: 30 (para 30%)"
                 className="w-full bg-[#0a0a0a] border border-zinc-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-red-600 transition"
               />
             </div>
@@ -323,7 +332,7 @@ export default function Index() {
                     <span className="font-semibold text-white">R$ {resultado.totalAcrescimos.toFixed(2)}</span>
                   </div>
                 )}
-                <div className="flex justify-between border-t border-zinc-800 pt-2"><span className="text-zinc-400">Margem de Lucro:</span> <span className="font-semibold text-white">R$ {resultado.margemVal.toFixed(2)}</span></div>
+                <div className="flex justify-between border-t border-zinc-800 pt-2"><span className="text-zinc-400">Margem de Lucro ({resultado.margemPercentual}%):</span> <span className="font-semibold text-white">R$ {resultado.margemVal.toFixed(2)}</span></div>
               </div>
 
               <div className="bg-red-600/10 border border-red-600/30 p-4 rounded-xl text-center">
@@ -332,27 +341,4 @@ export default function Index() {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-2.5 rounded-xl transition cursor-pointer"
-              >
-                Fechar
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Printer className="w-4 h-4" /> Imprimir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <footer className="text-center py-6 text-xs text-zinc-400 border-t border-zinc-900 mt-auto">
-        PRECIFICAÇÃO.VESTUÁRIO &copy; 2026 - Todos os direitos reservados.
-      </footer>
-    </div>
-  );
-}
+            <div className="
